@@ -13,6 +13,18 @@ import {getUserConstructor, generateUser} from './helpers/utils'
 // totally fine (the client will handle the default)
 // so don't worry about checking that case.
 
+test('returns all the properties', () => {
+  const userOverrides = {
+    username: 'john',
+    image: 'https://example.com/avatar.jpg',
+    bio: 'whatever',
+    following: false,
+  }
+  const user = generateUser(userOverrides)
+  const result = user.toProfileJSONFor(user)
+  
+  expect(result).toMatchObject(userOverrides)
+})
 
 //////// Elaboration & Feedback /////////
 // When you've finished with the exercises:
