@@ -31,8 +31,29 @@ test('this is the title of your test', () => {
 /*
 http://ws.kcd.im/?ws=Testing&e=API%20Unit&em=
 */
-test.skip('I submitted my elaboration and feedback', () => {
-  const submitted = false // change this when you've submitted!
+test('getTokenFromHeader returns null if there is no token', () => {
+  const req = getReq()
+  const result = getTokenFromHeader(req)
+  expect(result).toBeNull()
+})
+
+test('getTokenFromHeader returns the token from the headers', () => {
+  const token = 'blahblahblahblah.blahblahblah.blahblahblah'
+  const req = getReq(`Token ${token}`)
+  const result = getTokenFromHeader(req)
+  expect(result).toBe(token)
+})
+
+test('I submitted my elaboration and feedback', () => {
+  const submitted = true
   expect(true).toBe(submitted)
 })
+
+function getReq(token) {
+  return {
+    headers: {
+      authorization: token,
+    },
+  }
+}
 ////////////////////////////////
