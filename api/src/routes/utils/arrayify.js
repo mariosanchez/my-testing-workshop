@@ -1,7 +1,8 @@
 export default arrayify
-// Here's where you'll write arrayify. Look at
-// `api/src/routes/utils/arrayify.js` for instructions.
 
-function arrayify() {
-  // TODO don't type in here until you have a unit test first!
+// () => []
+//('hi') => ['hi']
+//(1, 2, 3) => [1, 2 ,3]
+function arrayify(params = []) {
+  return Array.isArray(params) ? params : [params]
 }

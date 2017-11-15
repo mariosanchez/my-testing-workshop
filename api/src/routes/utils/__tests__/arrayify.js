@@ -29,8 +29,27 @@ import arrayify from '../arrayify'
 /*
 http://ws.kcd.im/?ws=Testing&e=TDD&em=
 */
-test.skip('I submitted my elaboration and feedback', () => {
-  const submitted = false // change this when you've submitted!
+
+test('It must retunr an empty array if no argument is passed', () => {
+  const result = arrayify()
+  expect(result).toEqual([])
+})
+
+test('It must return an array if with one argument if the param ' +
+'is not an array', () => {
+  const result = arrayify('hi')
+  expect(result).toEqual(['hi'])
+})
+
+test('It must return the same array if with one argument if the param ' +
+'is an array', () => {
+  const array = [1, 2, 3]
+  const result = arrayify(array)
+  expect(result).toEqual(array)
+})
+
+test('I submitted my elaboration and feedback', () => {
+  const submitted = true
   expect(true).toBe(submitted)
 })
 ////////////////////////////////
