@@ -1,6 +1,10 @@
 import axios from 'axios'
 import startServer from '../start-server'
 
+const api = axios.create({
+  baseURL: 'http://localhost:3001/api/',
+})
+
 let server
 
 beforeAll(async () => {
@@ -12,7 +16,7 @@ afterAll((done) => {
 })
 
 test('can get users', async () => {
-  const response = await axios.get('http://localhost:3001/api/users')
+  const response = await api.get('users')
   const user = response.data.users[0]
   expect(user).toMatchObject({
     name: expect.any(String),
@@ -21,11 +25,11 @@ test('can get users', async () => {
 })
 
 test('can get 2 users at offset 3', async () => {
-  const fiveUsers = await axios
-    .get('http://localhost:3001/api/users?limit=5')
+  const fiveUsers = await api
+    .get('users?limit=5')
     .then(response => response.data.users)
-  const twoUsers = await axios
-    .get('http://localhost:3001/api/users?limit=2&offset=3')
+  const twoUsers = await api
+    .get('users?limit=2&offset=3')
     .then(response => response.data.users)
 
   const [firstUser, secondUser] = twoUsers
