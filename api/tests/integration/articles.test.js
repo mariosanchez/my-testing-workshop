@@ -11,6 +11,19 @@ import generateUserData from '../../../other/generate/user'
 // like that :)
 import startServer from '../../src/start-server'
 
+let server, newUserPayload, token
+
+beforeAll(async () => {
+  server = await startServer()
+  newUserPayload = await createNewUser(generateUserData())
+  token = newUserPayload.user.token
+})
+
+afterAll(done => {
+  server.close(done)
+  newUserPayload.cleanup()
+})
+
 // I'm going to give you this just so you don't have to look it up:
 const api = axios.create({
   baseURL: 'http://localhost:3000/api',
@@ -39,6 +52,77 @@ const getUser = res => res.data.user
 //////////////////////
 // 👋 Put your tests here
 ///////////////////////
+
+function checkArticle(article) {
+  expect(article).toMatchObject({
+    slug: expect.any(String),
+    title: expect.any(String),
+    description: expect.any(String),
+    body: expect.any(String),
+    createdAt: expect.any(String),
+    updatedAt: expect.any(String),
+    tagList: expect.any(Array),
+    favorited: expect.any(Boolean),
+    favoritesCount: expect.any(Number),
+    author: {
+      username: expect.any(String),
+      bio: expect.any(String),
+      image: expect.any(String),
+      following: expect.any(Boolean),
+    },
+  })
+}
+function checkArticleComment(articleComment) {
+  expect(articleComment).toMatchObject({
+    id: expect.any(String),
+    body: expect.any(String),
+    createdAt: expect.any(String),
+    author:
+    {
+      username: expect.any(String),
+      bio: expect.any(String),
+      image: expect.any(String),
+      following: expect.any(Boolean),
+    },
+  })
+}
+
+test('can get articles', async () => {
+  const articles = await api
+  .get('articles')
+  .then(response => response.data.articles)
+  const article = articles[0]
+  checkArticle(article)
+})
+
+test('can get articles with a limit', async () => {
+  const limit = 4
+  const articles = await api
+  .get(`articles?limit=${limit}`)
+  .then(response => response.data.articles)
+  expect(articles).toHaveLength(limit)
+})
+
+test('can get an article', async () => {
+  const slug = 'connecting-the-online-feed-like-it\'s-thx'
+  const article = await api
+  .get(`articles/${slug}`)
+  .then(response => response.data.article)
+  checkArticle(article)
+})
+
+test('can get an article\'s comments', async () => {
+  const slug = 'connecting-the-online-feed-like-it\'s-thx'
+  const comments = await api.get(`articles/${slug}/comments`)
+  .then(response => response.data.comments)
+  const comment = comments[0]
+  checkArticleComment(comment)
+})
+
+test.skip('can create an article', async () => {
+  api.defaults.headers.common.authorization = `Token ${token}`
+  const response = await api.post('articles', generateArticleForClient())
+})
 
 // I've left this here for you as a little utility that's a little
 // domain-specific and isn't super pertinent to learning testing :)
