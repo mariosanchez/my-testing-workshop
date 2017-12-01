@@ -11,17 +11,14 @@ import generateUserData from '../../../other/generate/user'
 // like that :)
 import startServer from '../../src/start-server'
 
-let server, newUserPayload, token
+let server
 
 beforeAll(async () => {
   server = await startServer()
-  newUserPayload = await createNewUser(generateUserData())
-  token = newUserPayload.user.token
 })
 
 afterAll(done => {
   server.close(done)
-  newUserPayload.cleanup()
 })
 
 // I'm going to give you this just so you don't have to look it up:
@@ -87,42 +84,60 @@ function checkArticleComment(articleComment) {
   })
 }
 
-test('can get articles', async () => {
-  const articles = await api
-  .get('articles')
-  .then(response => response.data.articles)
-  const article = articles[0]
-  checkArticle(article)
+describe('unauthenticated', () => {
+  test('can get articles', async () => {
+    const articles = await api
+    .get('articles')
+    .then(response => response.data.articles)
+    const article = articles[0]
+    checkArticle(article)
+  })
+
+  test('can get articles with a limit', async () => {
+    const limit = 4
+    const articles = await api
+    .get(`articles?limit=${limit}`)
+    .then(response => response.data.articles)
+    expect(articles).toHaveLength(limit)
+  })
+
+  test('can get an article', async () => {
+    const slug = 'connecting-the-online-feed-like-it\'s-thx'
+    const article = await api
+    .get(`articles/${slug}`)
+    .then(response => response.data.article)
+    checkArticle(article)
+  })
+
+  test('can get an article\'s comments', async () => {
+    const slug = 'connecting-the-online-feed-like-it\'s-thx'
+    const comments = await api.get(`articles/${slug}/comments`)
+    .then(response => response.data.comments)
+    const comment = comments[0]
+    checkArticleComment(comment)
+  })
 })
 
-test('can get articles with a limit', async () => {
-  const limit = 4
-  const articles = await api
-  .get(`articles?limit=${limit}`)
-  .then(response => response.data.articles)
-  expect(articles).toHaveLength(limit)
+describe('authenticated', () => {
+  let cleanupUser
+
+  beforeAll(async () => {
+    const newUserPayload = await createNewUser(generateUserData())
+    const token = newUserPayload.user.token
+    api.defaults.headers.common.authorization = `Token ${token}`
+    cleanupUser = newUserPayload.cleanup
+  })
+  
+  afterAll(async () => {
+    await cleanupUser()
+    api.defaults.headers.common.authorization = ''
+  })
+
+  test.skip('can create an article', async () => {
+    const response = await api.post('articles', generateArticleForClient())
+  })
 })
 
-test('can get an article', async () => {
-  const slug = 'connecting-the-online-feed-like-it\'s-thx'
-  const article = await api
-  .get(`articles/${slug}`)
-  .then(response => response.data.article)
-  checkArticle(article)
-})
-
-test('can get an article\'s comments', async () => {
-  const slug = 'connecting-the-online-feed-like-it\'s-thx'
-  const comments = await api.get(`articles/${slug}/comments`)
-  .then(response => response.data.comments)
-  const comment = comments[0]
-  checkArticleComment(comment)
-})
-
-test.skip('can create an article', async () => {
-  api.defaults.headers.common.authorization = `Token ${token}`
-  const response = await api.post('articles', generateArticleForClient())
-})
 
 // I've left this here for you as a little utility that's a little
 // domain-specific and isn't super pertinent to learning testing :)
