@@ -56,6 +56,32 @@ function sel(id) {
   return `[data-test="${id}"]`
 }
 
+it('should render the component with defaults', () => {
+  const wrapper = mountEditor()
+  expect(wrapper).toMatchSnapshot()
+})
+
+it('should render the component with overrided props', () => {
+  const title = 'Example of a title'
+  const wrapper = mountEditor({title})
+  const titleInput = wrapper.find(sel('title'))
+  expect(titleInput.node.value).toBeTitle
+})
+
+it('should add a new tag on write some text and press enter', () => {
+  const enter = 13
+  const newTag = 'I\'m a new tag'
+  const tagList = ['tags', 'and tags', 'and more tags']
+  const wrapper = mountEditor({tagList})
+  const tagsInput = wrapper.find(sel('tags'))
+  changeInputValue(tagsInput, newTag)
+  keyUpInput(tagsInput, enter)
+  const tagPils = wrapper.find(sel('tag-pills'))
+  expect(tagPils.children()).toHaveLength(4)
+  const newTagPill = wrapper.find(sel(`tag-3-${newTag}`))
+  expect(newTagPill).toHaveLength(1)
+})
+
 //////// Elaboration & Feedback /////////
 // When you've finished with the exercises:
 // 1. Copy the URL below into your browser and fill out the form
@@ -65,8 +91,8 @@ function sel(id) {
 /*
 http://ws.kcd.im/?ws=Testing&e=Client%20Unit%20Editor&em=
 */
-test.skip('I submitted my elaboration and feedback', () => {
-  const submitted = false // change this when you've submitted!
+test('I submitted my elaboration and feedback', () => {
+  const submitted = true // change this when you've submitted!
   expect(true).toBe(submitted)
 })
 ////////////////////////////////
