@@ -1,8 +1,23 @@
-import {sel} from '../utils'
+import {sel, visitApp, getRandomUserData} from '../utils'
 describe('Users', () => {
-  // what kinds of things does a user do that we want to make sure
-  // doesn't break?
+
+  it('should allow register a new user', () => {
+    const {username, email, password} = getRandomUserData()
+    visitApp('/register')
+
+    fillInRegisterDetails({username, email, password})
+    cy.get(sel('submit')).click()
+
+    verifyLoggedIn(username)
+  })
+
 })
+
+function fillInRegisterDetails({username, email, password}) {
+  cy.get(sel('username')).clear().type(username)
+  cy.get(sel('email')).clear().type(email)
+  cy.get(sel('password')).clear().type(password)
+}
 
 // I'll just give you this function :)
 // eslint-disable-next-line no-unused-vars

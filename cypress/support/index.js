@@ -15,4 +15,4 @@
 import 'babel-polyfill'
 import {visitApp} from '../utils'
 
-Cypress.addParentCommand({visitApp})
+Cypress.Commands.add('test', {visitApp})
